@@ -1,0 +1,470 @@
+\documentclass[11pt]{article}
+
+%####### DON'T CHANGE MARGIN SETTINGS ###########
+\newcommand{\keywordfont}{\textsc}
+\newcommand{\keyword}[1]{%
+  \marginpar{\raggedright\small\keywordfont{#1}}}
+\reversemarginpar
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, outer=2cm, inner=3.3cm, marginparwidth=72pt, heightrounded]{geometry}
+%#################################
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{float}
+
+\newtheorem{claim}{Claim}
+\newtheorem{conjecture}{Conjecture}
+
+
+
+
+\begin{document}
+
+\Large
+\begin{center}
+\textbf{MA3K7 Assignment $3$}
+\\
+Alexandros Sergiou (5505826)
+\end{center}
+\normalsize
+
+\section{Entry}
+
+\keyword{I KNOW}From the assumption in the problem,
+\begin{itemize}
+\item Two players are given a pair of positive integers $(n,s)$ corresponding to $n$ heaps and $s$ stones
+\item Players take turns placing one stone in one of $n$ heaps (empty before the game starts) 
+\item During the Nim phase, players take turns removing any positive number of stones from a single heap. The player who removes the final stone loses.
+\end{itemize}
+I assume that Player 1 makes the first placement and that turns continue alternating between the two phases. Therefore, if $s$ is even, Player 1
+begins the Nim phase, whereas if $s$ is odd, Player 2 begins.
+
+\medskip
+\keyword{NOTATION}
+For brevity, I define:
+
+\begin{itemize}
+    
+\item $H=(h_1,h_2,\dots,h_n)$ corresponds to the resulting heaps, where $h_i$ is the number of stones in heap $i$
+\item The Nim sum of the heaps, defined by
+$h_1 \oplus h_2 \oplus \cdots \oplus h_n,$
+where $\oplus$ denotes binary addition without carrying.
+\end{itemize}
+\medskip
+\keyword{I WANT} I want to investigate this game and how it's played while exploring it with python, specifically I will:
+\begin{itemize}
+\item Simulate the game to understand how it works.    
+\item Explore how different values of $(n,s)$ affect the winning strategy.
+\item Investigate the usefulness of the Nim sum.
+\item Explore how changing the rules affects the outcome.
+\end{itemize}
+
+\section{Attack}
+To begin, I used Python to simulate the game to help me visualise it. I followed a similar approach to the one seen in the lectures. 
+
+
+\medskip
+\keyword{OBSERVE}
+The code helped me understand how the game works. However, since both players made random moves, the results did not tell me which player had a winning strategy.
+
+\medskip
+\keyword{IDEA}
+I will now try to improve the simulation by allowing both players to make optimal moves, rather than choosing them randomly. This should help me investigate how the values
+of $n$ and $s$ affect the outcome.
+
+\medskip
+\keyword{CONJECTURE}
+From my initial computations, I wondered
+whether the winning player depended on
+whether $s$ was odd or even, or on the
+relationship between $n$ and $s$.
+To investigate this, I tested several
+different values of $(n,s)$ using Python.
+
+
+
+\pagebreak
+
+\medskip
+\keyword{CHECK} 
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+  heaps ($n$) &  stones ($s$) & Winner \\
+\hline
+2 & 3 & Player 2 \\
+\hline
+2 & 4 & Player 2 \\
+\hline
+5 & 4 & Player 1 \\
+\hline
+5 & 3 & Player 2 \\
+\hline
+6 & 5 & Player 2 \\
+\hline
+6 & 6 & Player 2 \\
+\hline
+7 & 6 & Player 2 \\
+\hline
+7 & 1 & Player 1 \\
+\hline
+\end{tabular}
+\caption{Winning players for different values of $n$ and $s$,
+assuming optimal play.}
+\end{table}
+
+
+
+\keyword{STUCK}
+After comparing the results of the eight games, I could not identify a pattern based on the parity of $n$ and $s$, or whether $n>s$. Although the Python code identified which player could force a win, the results did not explain the strategies behind these outcomes.
+
+\medskip
+\keyword{IDEA}
+Rather than testing more values of $(n,s)$,
+I decided to investigate whether the Nim sum could help explain the winning strategies.
+
+\medskip
+\keyword{ATTEMPT}
+I first considered the case $n=2$ and $s=4$. Since there are only two heaps, I wondered whether Player 2 could respond to each of Player 1's moves by placing a stone in the opposite heap.
+Suppose Player 1 places the first stone in
+heap 1. Player 2 can respond by placing a
+stone in heap 2, giving $(1,1)$.
+Whatever heap Player 1 chooses next, Player 2 can again place a stone in the opposite heap. This guarantees the final configuration $(2,2)$.
+Now since $2\oplus2=0$, and Player 1 begins the second phase, Player 2 can force a win under the last-stone-loses rule.
+
+\medskip
+\keyword{CHECK}
+I then considered whether the same strategy would work for other values of $s$.
+For $n=2$ and $s=6$, Player 2 can again place a stone in the opposite heap after every move made by Player 1. This guarantees the final
+configuration $(3,3)$, for which
+$$ 3\oplus3=0. $$
+Since Player 1 begins the Nim phase, Player 2 can force a win.
+
+
+
+\medskip
+\keyword{OBSERVE}
+When $s$ is odd, Player 1 makes the final
+placement, so Player 2 cannot necessarily
+leave the heaps equal. However, Player 2
+then begins the Nim phase, which suggests
+that a different strategy may be possible.
+
+
+\keyword{CHECK}
+
+To investigate this, I considered the case $n=2$ and $s=5$.
+Using the same strategy as before, Player 2 can ensure that after four placements the heaps are $(2,2)$. Player 1 then places the final stone, giving either $(3,2)$ or $(2,3)$. In both cases, the Nim sum is
+$$ 3\oplus2=1\neq0.$$
+Since Player 2 begins the Nim phase, this is a winning position for Player 2.
+
+\smallskip
+\keyword{NOTE}
+This suggests that the important factor is not simply whether the Nim sum is zero, but also which player begins the second phase.
+I then considered the case $n=2$ and $s=2$,
+to see whether the same strategy would work
+when fewer stones were available.
+Player 2 can place their stone in the
+opposite heap, producing $(1,1)$, whose
+Nim sum is
+$$1\oplus1=0.$$
+However, unlike the cases $s=4$ and $s=6$,
+this is a winning position for Player 1
+under the last-stone-loses rule.
+Player 1 can remove one stone, leaving
+Player 2 forced to take the final stone
+and lose.
+This made me realise that the usual
+Nim-sum criterion does not always apply
+under the last-stone-loses rule.
+
+\keyword{AHA}
+
+It appears we can use the nim sum to determine winning and losing positions
+under the last-stone-loses rule, provided
+at least one heap contains more than one stone.
+However, when every heap contains at most
+one stone and at least one stone remains,
+the winning criterion is reversed.
+In this case, a Nim sum of zero indicates
+a winning position for the player whose
+turn it is.
+I shall check this observation
+using Python.
+
+
+
+\keyword{CHECK}
+
+To verify my observations, I wrote another
+Python function that examines all possible
+moves without using the Nim sum.
+I used this to determine winning and
+losing positions in the second phase,
+and compared the results with those
+obtained using my original
+Nim-sum-based algorithm.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+Heaps & Nim sum & Recursive result & Outputs agree \\
+\hline
+$(2,2)$ & $0$ & Losing & Yes \\
+$(1,1)$ & $0$ & Winning & Yes \\
+$(3,2)$ & $1$ & Winning & Yes \\
+$(1,1,1)$ & $1$ & Losing & Yes \\
+$(1,1,1,1)$ & $0$ & Winning & Yes \\
+$(3,3)$ & $0$ & Losing & Yes \\
+\hline
+\end{tabular}
+\caption{Comparison of recursive results with the
+mis\`ere Nim winning criterion.}
+\end{table}
+
+
+\keyword{NOTE}
+The results agreed for all six configurations, supporting my earlier observation about the
+Nim sum and the exception under the
+last-stone-loses rule.
+
+
+\section{Solution}
+From my Python experiments, I found that although there was no obvious pattern for every pair $(n,s)$, I could identify some cases where a player has a winning strategy.
+I will now use my observations about the Nim sum to justify these strategies.
+
+
+\begin{claim}
+If $s>n$ and $s$ is odd, then Player 2 has a winning strategy
+\end{claim}
+
+\begin{proof}
+Since $s>n$, there are more stones than heaps, so at least one heap must contain more than one stone after the first phase.
+Furthermore, since $s$ is odd, there must
+be an odd number of odd-sized heaps.
+As the least significant binary digit of
+the Nim sum is determined by the parity
+of the odd-sized heaps, the Nim sum
+must be non-zero.
+Therefore, the final configuration has
+at least one heap containing more than
+one stone and a non-zero Nim sum.
+Under the last-stone-loses rule, this
+is a winning position for the player
+whose turn it is.
+Since $s$ is odd, Player 2 begins the
+second phase and can therefore force a win.
+\end{proof}
+
+
+\keyword{CHECK}
+I then considered whether the condition $s>n$ was necessary for Player 2 to win.
+For example, when $(n,s)=(5,3)$, it is possible for the final configuration to be $(1,1,1,0,0)$. Although its Nim sum is non-zero, this is a losing position for Player 2 under the last-stone-loses rule.
+
+However, Player 2 can prevent this configuration. After Player 1's first placement, Player 2 can place a stone in the same heap, ensuring that at least one heap contains more than one stone.
+
+Regardless of Player 1's final placement, the Nim sum must be non-zero, since the total number of stones is odd.
+As Player 2 begins the second phase, they
+can therefore force a win.
+
+\keyword{OBSERVE}
+
+This shows that the condition $s>n$ is
+sufficient, but not necessary, for
+Player 2 to have a winning strategy
+when $s$ is odd.
+Although the values of $(n,s)$ can guarantee
+a favourable Nim position in some cases,
+in others the players must use their
+placements strategically to achieve one.
+
+\begin{claim}
+Suppose at least one stone remains and every heap contains at most one stone. Under the last-stone-loses rule, a position is winning for the player whose turn it is if and only if its Nim sum is zero.
+\end{claim}
+
+\begin{proof}
+Since every non-empty heap contains exactly one stone, a player can only remove one stone per turn.
+Let $k$ be the number of remaining stones.
+If $k$ is even, the second player will take
+the final stone and lose, so the player
+moving first has a winning position.
+If $k$ is odd, the first player will take
+the final stone and lose, so the position
+is losing for the player whose turn it is.
+Since each heap contains either $0$ or $1$
+stone, the Nim sum is
+
+$$ h_1\oplus\cdots\oplus h_n = \begin{cases}
+0, & \text{if } k \text{ is even},\\
+1, & \text{if } k \text{ is odd}. \end{cases}$$
+Therefore, the position is winning for
+the player whose turn it is if and only
+if its Nim sum is zero.
+\end{proof}
+
+
+
+\section{Review}
+
+\keyword{CHECK}
+To check my findings, I used Python to test
+some additional values of $(n,s)$ satisfying
+the conditions of my first claim.
+For each case, the program identified Player 2 as the winner, agreeing with my mathematical argument.
+
+I also tested configurations where every heap contained at most one stone. The results agreed with my second claim, including configurations containing empty heaps.
+
+
+
+\keyword{REFLECT}
+After initially running my Python simulations, I thought I had identified a reliable pattern. However, after testing more cases, I realised that my initial observations were not sufficient to explain the results. This led me to investigate the usefulness of the Nim sum, where I discovered that it does not behave in the same way under the last-stone-loses rule as in standard Nim. I found this interesting, as it led me to the result established in my second claim in the Solution section. As the objective of this assignment was to explore the game rather than find a general solution, I experimented with various scenarios and strategies to see whether I could identify any patterns. In the following section, I will explore how variations in the rules affect the winning strategies.
+
+
+\keyword{EXTENSION}
+I then decided to investigate how changing
+the last-stone-loses rule would affect the
+winning strategies. In particular, I considered
+the variation where the player who removes
+the final stone wins, essentially turning
+the second phase into standard Nim while
+keeping the first phase unchanged.
+
+
+\pagebreak
+
+\keyword{NOTICE}
+I modified my Python code to compare the
+winning players under both variations,
+assuming optimal play. Some of the
+results are shown below.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+$n$ & $s$ & Mis\`ere Nim & Standard Nim \\
+\hline
+2 & 1 & Player 1 & Player 2 \\
+2 & 2 & Player 1 & Player 2 \\
+2 & 3 & Player 2 & Player 2 \\
+2 & 4 & Player 2 & Player 2 \\
+3 & 1 & Player 1 & Player 2 \\
+3 & 2 & Player 1 & Player 2 \\
+3 & 3 & Player 2 & Player 2 \\
+3 & 4 & Player 1 & Player 1 \\
+4 & 2 & Player 1 & Player 2 \\
+4 & 3 & Player 2 & Player 2 \\
+4 & 4 & Player 1 & Player 2 \\
+4 & 5 & Player 2 & Player 2 \\
+
+\hline
+\end{tabular}
+\caption{Comparison of the winning players
+under the two different rules.}
+\end{table}
+
+\keyword{OBSERVE}
+A couple of interesting observations can be made after running a python code comparing the winner before and after the rule change. The first: It appears that if $s>n$ the winning player was the same under both
+variations.This can be explained using the fact that if $s>n$, at least one heap
+must contain more than one stone after the
+first phase. In that case, standard Nim and
+mis\`ere Nim have the same winning criterion, so the outcome of the complete two-phase game is unchanged.I also noticed that whenever $s$ was odd and $s\geq 3$, Player 2 won under both rules in
+all the cases I tested. 
+
+
+\keyword{IDEA}
+I wondered whether this would hold for
+any number of heaps.
+Suppose $s\geq 3$ is odd. After Player 1
+places the first stone, Player 2 can place
+their stone in the same heap.
+This guarantees that at least one heap
+contains more than one stone after the
+first phase, regardless of the remaining
+placements. Since $s$ is odd, the final Nim sum must be non-zero. Furthermore, Player 2 begins the second phase.
+Therefore, Player 2 can force a win under
+both standard Nim and the last-stone-loses
+variation, for any $n\geq 1$.
+
+\medskip
+\keyword{EXTENSION}
+I then decided to investigate another variation of the game, this time restricting the number of stones that could be removed during the second phase.
+Instead of allowing players to remove any
+number of stones from a single heap, I
+considered the case where they could remove
+at most two stones per turn.
+I kept the last-stone-loses rule and the
+first phase unchanged, to see how this
+restriction would affect the winning strategies.
+
+\medskip
+\keyword{OBSERVE}
+From the results, I noticed that restricting
+the number of stones that could be removed
+changed the winning player in several cases.
+For example, when $(n,s)=(3,4)$, Player 1
+wins under the original rules, whereas
+Player 2 wins when players can remove
+at most two stones per turn.
+I decided to investigate why this happens.
+
+\smallskip
+\keyword{JUSTIFY}
+Suppose Player 1 places the first stone in
+heap 1. Player 2 can respond by placing a
+stone in the same heap, producing $(2,0,0)$.
+If Player 1 places the third stone in the
+same heap, Player 2 can also place their
+stone there, giving $(4,0,0)$.
+Alternatively, if Player 1 places the third
+stone in an empty heap, Player 2 can add
+another stone to the first heap, producing
+$(3,1,0)$, up to the order of the heaps.
+
+I then checked why these two configurations
+were losing positions.
+From $(4,0,0)$, Player 1 can only leave
+$(3,0,0)$ or $(2,0,0)$. In either case,
+Player 2 can remove enough stones to
+leave Player 1 with the final stone.
+Similarly, from $(3,1,0)$, Player 1
+can only leave $(2,1,0)$, $(1,1,0)$
+or $(3,0,0)$.
+In each case, Player 2 can make a move
+that leaves exactly one stone remaining,
+forcing Player 1 to take the last
+stone and lose.
+Therefore, both $(4,0,0)$ and
+$(3,1,0)$ are losing positions for
+Player 1, confirming the results
+obtained using Python.
+Hence, Player 2 can force a win
+when $(n,s)=(3,4)$ under the
+restricted rules.
+
+
+\smallskip
+\keyword{REFLECT}
+What I found particularly interesting was
+that restricting the possible moves changed
+the usefulness of the Nim sum.
+For example, $(4,0,0)$ has a non-zero Nim
+sum and is winning under the original
+rules. However, with a maximum removal of
+two stones, it becomes a losing position.
+This shows that the winning strategies
+depend not only on the final heap
+configuration, but also on which moves
+are permitted during the second phase.
+
+
+
+
+
+\end{document}
